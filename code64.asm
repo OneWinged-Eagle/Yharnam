@@ -132,7 +132,7 @@ LOOPB:
 LOOPNEXT:
 	; next name
 	inc rcx
-	cmp rcx, nbFunctions
+	cmp rcx, nbNames
 	jne LOOPB
 
 ADDRPROCOK:
@@ -220,7 +220,7 @@ ADDRPROCOK:
 
 	mov ecx, 0
 	call ExitProcess
-	
+
 main endp
 
 END
