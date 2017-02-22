@@ -1,5 +1,17 @@
 # Yharnam
 
+Steps :
+
+- GetCurrentDirectory
+- FindFirstFile, FindNextFile
+- For each files :
+	- Check exe with SHGetFileInfo
+	- Use MapViewOfFile (Add necessary size for our section)
+	- Get info from PE headers
+	- Inject new section ".ya" in PE headers
+	- Overwritte entrypoint
+	- Move bytes code to our section
+
 Code64
 
 ```

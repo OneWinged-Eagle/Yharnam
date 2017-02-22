@@ -11,15 +11,17 @@ option casemap: none	; Case sensitive syntax
 ; *************************************************************************
 ; MASM32 proto types for Win32 functions and structures
 ; *************************************************************************  
-include c:\masm32\include\windows.inc
-include c:\masm32\include\user32.inc
-include c:\masm32\include\kernel32.inc
-         
+;include c:\masm32\include\windows.inc
+;include c:\masm32\include\user32.inc
+;include c:\masm32\include\kernel32.inc
+
+;extrn ExitProcess: PROC
+
 ; *************************************************************************
 ; MASM32 object libraries
 ; *************************************************************************  
-includelib c:\masm32\lib\user32.lib
-includelib c:\masm32\lib\kernel32.lib
+;includelib c:\masm32\lib\user32.lib
+;includelib c:\masm32\lib\kernel32.lib
 
 ; *************************************************************************
 ; Our data section. Here we declare our strings for our message box
@@ -172,5 +174,8 @@ PROCADDROK:
     call eax
 	
 	; When the message box has been closed, exit the app with exit code 0
-    invoke ExitProcess, 0
+	;push 0h
+	;call ExitProcess
+
+    ;invoke ExitProcess, 0
 end start

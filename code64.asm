@@ -44,6 +44,7 @@ main proc
 	mov kernelBase, rax
 	mov rbx, rax
 
+
 	;--------------------------------------------------
 	; 
 	; 	- Get Export Dir
@@ -92,7 +93,7 @@ main proc
 LOOPB:
 	; Get AddressOfNames addr
 	mov rsi, exportDir
-	mov esi, DWORD PTR [rsi+20h]		; AddressOfNames
+	mov esi, DWORD PTR [rsi+20h]
 	add rsi, kernelBase
 
 	; Get addr of name to cmp
@@ -118,10 +119,10 @@ LOOPB:
 	mov esi, [rsi+24h]
 	add rsi, kernelBase
 	xor rdi, rdi
-	mov di, WORD PTR [rcx * 2 + rsi]	; Ordinal in rdi
+	mov di, WORD PTR [rcx * 2 + rsi]
 	
 	mov rsi, exportDir
-	mov esi, [rsi+1ch]					; AddressOfFunctions
+	mov esi, [rsi+1ch]
 	add rsi, kernelBase
 
 	mov edi, DWORD PTR [rdi * 4 + rsi]
@@ -149,13 +150,10 @@ ADDRPROCOK:
 	mov [rdi+8h], DWORD PTR 41797261h
 	mov [rdi+0ch], DWORD PTR 00000000h
 
-	sub rsp,28h
 	mov rcx, kernelBase
 	lea rdx, loadLibS
 	mov rdi, getProcAddr
 	call rdi
-	;call GetProcAddress
-	add	rsp, 28h
 	mov loadLibAddr, rax
 	
 	;--------------------------------------------------
@@ -169,10 +167,8 @@ ADDRPROCOK:
 	mov [rdi+4h], DWORD PTR 642e3233h
 	mov [rdi+8h], DWORD PTR 00006c6ch
 
-	;sub rsp,28h
 	lea rcx, user32S
 	call rax
-	;add rsp,28h
 
 	;--------------------------------------------------
 	; 
@@ -185,12 +181,10 @@ ADDRPROCOK:
 	mov [rdi+4h], DWORD PTR 42656761h
 	mov [rdi+8h], DWORD PTR 0041786fh
 
-	;sub rsp,28h
 	mov rcx, rax
 	lea rdx, msgBoxS
 	mov rax, getProcAddr
 	call rax
-	;add rsp,28h
 
 	;--------------------------------------------------
 	; 
@@ -210,13 +204,12 @@ ADDRPROCOK:
 	mov [rdi+4h], DWORD PTR 64657463h
 	mov [rdi+8h], DWORD PTR 00002120h
 
-	;sub rsp,28h
 	mov rcx, 0
 	lea rdx, msgYhaS
 	lea r8, yhaS
 	mov r9d, 0
 	call rax
-	add rsp,28h
+	add rsp, 90h
 
 	mov ecx, 0
 	call ExitProcess
