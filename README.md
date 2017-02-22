@@ -12,3 +12,10 @@ Code86
 ml /c /coff /Cp .\code.asm
 link /subsystem:windows /libpath:C:\masm32\lib .\code.obj
 ```
+
+Yharnam
+
+```
+ml /c /coff /Cp .\yharnam.asm
+link /subsystem:windows /libpath:C:\masm32\lib .\yharnam.obj
+```
