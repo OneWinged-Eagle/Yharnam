@@ -147,10 +147,6 @@ PROCADDROK:
     push edx
     push 00000000h
     call eax
-	
-	; When the message box has been closed, exit the app with exit code 0
-	;push 0h
-	;call ExitProcess
 
     invoke ExitProcess, 0
 end start
